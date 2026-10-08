@@ -1,19 +1,19 @@
 package com.chat.app.controller;
 
-import com.chat.app.entity.Chat;
-import com.chat.app.services.ChatService;
+import com.chat.app.entity.Messages;
+import com.chat.app.services.interfaces.MessagesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/chats")
-public class ChatController {
+public class MessagesController {
 
     @Autowired
-    private ChatService chatService;
+    private MessagesService chatService;
 
     @PostMapping
-    public Chat saveChat(@RequestBody Chat chat) {
+    public Messages saveChat(@RequestBody Messages chat) {
         return chatService.saveChat(chat);
     }
 }
