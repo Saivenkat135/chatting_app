@@ -1,0 +1,53 @@
+i have 3 collections
+
+1) users
+2) friendships
+3) messages
+
+1) Users :
+    {
+      "_id": "U101",
+      "username": "sai",
+      "email": "sai@gmail.com",
+      "password": "hashed_password",
+      "profileImage": "/images/sai.jpg",
+      "createdAt": "2026-09-28T10:00:00"
+    }
+
+2) friendships:
+    {
+      "_id": "F001",
+      "user1Id": "U101", // ids of users collection
+      "user2Id": "U102",
+      "status": "ACCEPTED", // PENDING / ACCEPTED / REJECTED / BLOCKED
+      "createdAt": "2026-09-28T11:00:00"
+    }
+
+3) messages :
+    {
+      "_id": "M001",
+      "conversationId": "C001",
+      "senderId": "U101",
+      "receiverId": "U102",
+      "message": "Hi Rahul",
+      "createdAt": "2026-09-28T12:00:00",
+      "read": false
+    }
+
+4) conversations:
+    this is used for finding the friends like i will fetch U101 collections which means
+    i got all the friends of U101 .
+
+    -> to get the chat initially i will find the conversation id and then using that
+        conversation id i will find the messages .
+    {
+      "_id": "C001",
+      "type": "INDIVIDUAL",
+      "participants": [
+        "U101",
+        "U102"
+      ],
+      "createdAt": "2026-09-28T12:00:00",
+      "lastMessage": "Hi Rahul",
+      "lastMessageAt": "2026-09-28T12:10:00"
+    }
