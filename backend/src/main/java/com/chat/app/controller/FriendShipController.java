@@ -1,11 +1,11 @@
 package com.chat.app.controller;
 
-import com.chat.app.DTO.FriendRequest;
 import com.chat.app.DTO.FriendResponse;
 import com.chat.app.entity.UserDetails;
 import com.chat.app.repository.UserRepository;
+import com.chat.app.entity.Conversations;
+import com.chat.app.services.interfaces.ChatService;
 import com.chat.app.services.interfaces.FriendShipService;
-import org.apache.tomcat.util.http.parser.Authorization;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +24,11 @@ public class FriendShipController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ChatService chatService;
+
     @GetMapping
-    public ResponseEntity<?> getFriends(Authentication authentication ,@RequestParam String Status){
+    public ResponseEntity<List<FriendResponse>> getFriends(Authentication authentication ,@RequestParam String Status){
         String email=authentication.getName();
 
         UserDetails user=userRepository.findByEmail(email).orElseThrow(
@@ -35,15 +38,15 @@ public class FriendShipController {
         return  ResponseEntity.ok(friendShipService.getFriends(user.getUserId(),Status));
     }
 
-    @PostMapping("/requests")
-    public void sendFriendRequest(Authentication authentication,@RequestBody FriendRequest request){
+    @PostMapping("/requests/{friendId}")
+    public void sendFriendRequest(Authentication authentication,@PathVariable String friendId){
         String email=authentication.getName();
 
         UserDetails user=userRepository.findByEmail(email).orElseThrow(
                 ()->new RuntimeException("user email not found")
         );
 
-        friendShipService.sendFriendRequest(user.getUserId(),request.getFriendId());
+        friendShipService.sendFriendRequest(user.getUserId(),friendId);
     }
 
     @GetMapping("/requests")
@@ -57,14 +60,30 @@ public class FriendShipController {
         return friendShipService.getPendingRequests(user.getUserId());
     }
 
+    @GetMapping("/requests/sent")
+    public List<FriendResponse> getSentRequests(Authentication authentication) {
+        String email = authentication.getName();
+
+        UserDetails user = userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("user not found")
+        );
+
+        return friendShipService.getSentRequests(user.getUserId());
+    }
+
     @PutMapping("/requests/{requestId}/accept")
-    public void acceptFriendRequest(Authentication authentication , @PathVariable String requestId){
+    public Conversations acceptFriendRequest(
+            Authentication authentication,
+            @PathVariable String requestId) {
         String email =  authentication.getName();
 
         UserDetails user=userRepository.findByEmail(email)
                 .orElseThrow(()->new RuntimeException("user not found"));
 
-        friendShipService.acceptFriendRequest(user.getUserId(),requestId);
+        String friendId =
+                friendShipService.acceptFriendRequest(user.getUserId(), requestId);
+
+        return chatService.createOrGetConversation(email, friendId);
 
     }
 
@@ -79,6 +98,19 @@ public class FriendShipController {
 
     }
 
+    @DeleteMapping("/requests/{requestId}")
+    public void deleteFriendRequest(
+            Authentication authentication,
+            @PathVariable String requestId) {
+        String email = authentication.getName();
+
+        UserDetails user = userRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("user not found")
+        );
+
+        friendShipService.deletePendingRequest(user.getUserId(), requestId);
+    }
+
     @PutMapping("/requests/{friendId}/remove")
     public void removeFriend(Authentication authentication , @PathVariable String friendId){
         String email =  authentication.getName();
@@ -86,11 +118,7 @@ public class FriendShipController {
         UserDetails user=userRepository.findByEmail(email)
                 .orElseThrow(()->new RuntimeException("user not found"));
 
-        userRepository.findById(friendId)
-                .orElseThrow(()->new RuntimeException("user not found"));
-
-        friendShipService.rejectFriendRequest(user.getUserId(),friendId);
-
+        friendShipService.removeFriend(user.getUserId(), friendId);
     }
 
 

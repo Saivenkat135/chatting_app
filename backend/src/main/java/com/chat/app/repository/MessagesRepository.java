@@ -2,9 +2,13 @@ package com.chat.app.repository;
 
 import com.chat.app.entity.Messages;
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
-public interface MessagesRepository extends MongoRepository<Messages, String> {
+import java.util.List;
 
+public interface MessagesRepository
+        extends MongoRepository<Messages, String> {
+
+    List<Messages> findByConversationIdOrderByTimestampAsc(
+            String conversationId
+    );
 }

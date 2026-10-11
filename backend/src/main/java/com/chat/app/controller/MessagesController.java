@@ -1,19 +1,34 @@
 package com.chat.app.controller;
 
+import com.chat.app.DTO.SendMessageRequest;
 import com.chat.app.entity.Messages;
 import com.chat.app.services.interfaces.MessagesService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/chats")
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.stereotype.Controller;
+
+import java.security.Principal;
+
+@Controller
 public class MessagesController {
 
-    @Autowired
-    private MessagesService chatService;
+    private final MessagesService messagesService;
 
-    @PostMapping
-    public Messages saveChat(@RequestBody Messages chat) {
-        return chatService.saveChat(chat);
+    public MessagesController(MessagesService messagesService) {
+        this.messagesService = messagesService;
+    }
+
+    @MessageMapping("/chat.send")
+    public void sendMessage(
+            SendMessageRequest request,
+            Principal principal) {
+
+        // JWT-authenticated identity.
+        String senderEmail = principal.getName();
+
+        messagesService.sendPrivateMessage(
+                request,
+                senderEmail
+        );
     }
 }

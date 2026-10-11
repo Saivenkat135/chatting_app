@@ -9,7 +9,9 @@ public interface FriendShipService {
     public List<FriendResponse> getFriends(String currentUserId, String Status);
     public void sendFriendRequest(String currentUserId, String friendId);
     public List<FriendResponse>  getPendingRequests(String currentUserId);
-    public void acceptFriendRequest(String currentUserId , String requestId);
+    public List<FriendResponse> getSentRequests(String currentUserId);
+    public String acceptFriendRequest(String currentUserId , String requestId);
     public void rejectFriendRequest(String currentUserId , String requestId);
+    public void deletePendingRequest(String currentUserId, String requestId);
     public void removeFriend(String currentUserId , String friendId);
 }

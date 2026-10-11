@@ -15,8 +15,10 @@ import java.util.Date;
 public class JwtService {
 
     // Ensure secret key is at least 32 characters long
-    @Value("${jwt.secret}")
-    private String SECRET_KEY ;
+//    @Value("${jwt.secret}")
+//    private String SECRET_KEY ;
+
+    private static final String SECRET_KEY = "your-very-secret-key-that-must-be-at-least-32-bytes-long!";
 
     public SecretKey getKey(){
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));

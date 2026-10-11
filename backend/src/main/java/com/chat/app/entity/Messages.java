@@ -3,14 +3,15 @@ package com.chat.app.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "chat_data")
+@Document(collection = "messages")
 public class Messages {
 
     @Id
@@ -22,8 +23,9 @@ public class Messages {
 
     private String receiverId;
 
-    @CreatedDate
-    private String createdAt;
+    private String content;
+
+    private LocalDateTime timestamp;
 
     private boolean read;
 }
