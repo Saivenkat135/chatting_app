@@ -169,12 +169,37 @@ public class FriendShipServiceImpl implements FriendShipService {
         return responses;
     }
 
+    public List<FriendResponse> getSentRequests(String currentUserId) {
+        List<FriendShips> requests =
+                friendshipRepository.findByUser1IdAndStatus(
+                        currentUserId,
+                        "PENDING"
+                );
+
+        List<FriendResponse> responses = new ArrayList<>();
+
+        for (FriendShips request : requests) {
+            userRepository.findById(request.getUser2Id())
+                    .ifPresent(user ->
+                            responses.add(
+                                    new FriendResponse(
+                                            request.getId(),
+                                            user.getUserId(),
+                                            user.getUsername()
+                                    )
+                            )
+                    );
+        }
+
+        return responses;
+    }
+
 
     // =========================================================
     // ACCEPT REQUEST
     // =========================================================
 
-    public void acceptFriendRequest(
+    public String acceptFriendRequest(
             String currentUserId,
             String requestId) {
 
@@ -193,8 +218,12 @@ public class FriendShipServiceImpl implements FriendShipService {
             );
         }
 
+        if ("ACCEPTED".equals(friendship.getStatus())) {
+            return friendship.getUser1Id();
+        }
+
         // Request must be pending
-        if (!friendship.getStatus().equals("PENDING")) {
+        if (!"PENDING".equals(friendship.getStatus())) {
             throw new RuntimeException(
                     "Friend request is not pending"
             );
@@ -203,6 +232,7 @@ public class FriendShipServiceImpl implements FriendShipService {
         friendship.setStatus("ACCEPTED");
 
         friendshipRepository.save(friendship);
+        return friendship.getUser1Id();
     }
 
 
@@ -238,6 +268,33 @@ public class FriendShipServiceImpl implements FriendShipService {
         friendship.setStatus("REJECTED");
 
         friendshipRepository.save(friendship);
+    }
+
+    public void deletePendingRequest(
+            String currentUserId,
+            String requestId) {
+
+        FriendShips friendship =
+                friendshipRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "Friend request not found"
+                                )
+                        );
+
+        if (!friendship.getUser2Id().equals(currentUserId)) {
+            throw new RuntimeException(
+                    "You are not allowed to delete this request"
+            );
+        }
+
+        if (!"PENDING".equals(friendship.getStatus())) {
+            throw new RuntimeException(
+                    "Friend request is not pending"
+            );
+        }
+
+        friendshipRepository.delete(friendship);
     }
 
 

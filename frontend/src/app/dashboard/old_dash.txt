@@ -1,0 +1,130 @@
+
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { useSearchParams } from "next/navigation";
+// import { io, Socket } from "socket.io-client";
+
+// interface ChatMessage {
+//   senderId: string;
+//   receiverId: string;
+//   text: string;
+//   timestamp: string;
+// }
+
+// interface ChatProps {
+//   userId: string;
+// }
+
+// export default function Chat() {
+
+//   const searchParams = useSearchParams();
+//   const userId = searchParams.get("userId");
+  
+//   const [socket, setSocket] = useState<Socket | null>(null);
+//   const [receiverId, setReceiverId] = useState("");
+//   const [text, setText] = useState("");
+//   const [messages, setMessages] = useState<ChatMessage[]>([]);
+//   const [connected, setConnected] = useState(false);
+
+//   useEffect(() => {
+//     const newSocket = io("http://localhost:3000");
+
+//     setSocket(newSocket);
+
+//     newSocket.on("connect", () => {
+//       setConnected(true);
+
+//       // Register this user's personal room.
+//       newSocket.emit("register-user", { userId });
+//     });
+
+//     newSocket.on("disconnect", () => {
+//       setConnected(false);
+//     });
+
+//     newSocket.on(
+//       "receive-private-message",
+//       (message: ChatMessage) => {
+//         setMessages((previous) => [...previous, message]);
+//       }
+//     );
+
+//     return () => {
+//       newSocket.disconnect();
+//     };
+//   }, [userId]);
+
+//   function sendMessage() {
+//     if (!userId || !socket?.connected || !receiverId.trim() || !text.trim()) {
+//       return;
+//     }
+
+//     const message: ChatMessage = {
+//       senderId: userId,
+//       receiverId: receiverId.trim(),
+//       text: text.trim(),
+//       timestamp: new Date().toISOString(),
+//     };
+
+//     socket.emit("send-private-message", message);
+
+//     // Display the message immediately on this device.
+//     setMessages((previous) => [...previous, message]);
+
+//     setText("");
+//   }
+
+//   return (
+//     <main style={{ maxWidth: 550, margin: "40px auto", padding: 20 }}>
+//       <h2>Private Chat</h2>
+
+//       <p>Logged-in user: {userId}</p>
+//       <p>Status: {connected ? "Connected" : "Disconnected"}</p>
+
+//       <input
+//         value={receiverId}
+//         onChange={(e) => setReceiverId(e.target.value)}
+//         placeholder="Enter receiver's user ID"
+//         style={{ width: "100%", padding: 10, marginBottom: 12 }}
+//       />
+
+//       <div
+//         style={{
+//           border: "1px solid #ccc",
+//           borderRadius: 8,
+//           padding: 12,
+//           minHeight: 200,
+//           marginBottom: 12,
+//         }}
+//       >
+//         {messages.map((message, index) => (
+//           <p key={`${message.timestamp}-${index}`}>
+//             <strong>
+//               {message.senderId === userId ? "You" : message.senderId}:
+//             </strong>{" "}
+//             {message.text}
+//           </p>
+//         ))}
+//       </div>
+
+//       <input
+//         value={text}
+//         onChange={(e) => setText(e.target.value)}
+//         onKeyDown={(e) => {
+//           if (e.key === "Enter") sendMessage();
+//         }}
+//         placeholder="Type a message"
+//         style={{ padding: 10, width: "72%" }}
+//       />
+
+//       <button
+//         onClick={sendMessage}
+//         disabled={!connected}
+//         style={{ padding: 10, marginLeft: 8 }}
+//       >
+//         Send
+//       </button>
+//     </main>
+//   );
+// }

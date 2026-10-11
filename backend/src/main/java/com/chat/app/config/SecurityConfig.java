@@ -1,3 +1,4 @@
+
 package com.chat.app.config;
 
 import com.chat.app.security.JwtAuthenticationFilter;
@@ -5,15 +6,20 @@ import com.chat.app.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-// this class is used for the permitting the endpoints which do not require the JWT token verification
-// for example /login /singup etc do not require the jwt verification
+import java.util.List;
+
 @Configuration
 public class SecurityConfig {
 
@@ -21,9 +27,7 @@ public class SecurityConfig {
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter) {
-
-        this.jwtAuthenticationFilter =
-                jwtAuthenticationFilter;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -31,6 +35,8 @@ public class SecurityConfig {
             HttpSecurity http) throws Exception {
 
         http
+                .cors(Customizer.withDefaults())
+
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
@@ -41,13 +47,23 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Public authentication endpoints
                         .requestMatchers(
                                 "/api/user/login",
                                 "/api/user/register"
                         ).permitAll()
 
-                        .anyRequest()
-                        .authenticated()
+                        // Allow CORS preflight requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // All friend endpoints require a valid JWT
+                        .requestMatchers("/api/friends/**").authenticated()
+
+                        // All chat endpoints require a valid JWT
+                        .requestMatchers("/api/chats/**").authenticated()
+
+                        // Everything else requires authentication
+                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(
@@ -56,5 +72,46 @@ public class SecurityConfig {
                 );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+                List.of(
+                        "http://localhost:3000",
+                        "http://localhost:3001"
+                )
+        );
+
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "DELETE",
+                        "PATCH",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                List.of(
+                        "Authorization",
+                        "Content-Type",
+                        "Accept"
+                )
+        );
+
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

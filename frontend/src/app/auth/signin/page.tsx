@@ -1,25 +1,156 @@
-import "../../CSS/signin.css";
+// import "../../CSS/signin.css";
 
-export default function Signin(){
-    return (
-        <>
-            <div className="full-page">
-                <div className="left-section">
-                    image
-                </div>
-                <div className="right-section">
-                    <div className="form">
-                        <div className="title">Sign In</div>
-                        <div className="text">Enter the Email</div>
-                        <input className="input" placeholder="Enter the email"/>
+// export default function Signin(){
+//     return (
+//         <>
+//             <div className="full-page">
+//                 <div className="left-section">
+//                     image
+//                 </div>
+//                 <div className="right-section">
+//                     <div className="form">
+//                         <div className="title">Sign In</div>
+//                         <div className="text">Enter the Email</div>
+//                         <input className="input" placeholder="Enter the email"/>
 
-                        <div className="text">Enter the password</div>
-                        <input className="input" placeholder="Enter the password"/>
+//                         <div className="text">Enter the password</div>
+//                         <input className="input" placeholder="Enter the password"/>
                         
-                        <button className="submit-button">Submit</button>
-                    </div>
-                </div>
-            </div>
-        </>
-    )
-} 
+//                         <button className="submit-button">Submit</button>
+//                     </div>
+//                 </div>
+//             </div>
+//         </>
+//     )
+// } 
+
+
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}/api/user/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Login failed"
+        );
+      }
+
+      if (!data.accessToken || !data.user?.userId) {
+        throw new Error(
+          "Login response must contain accessToken and user.userId"
+        );
+      }
+
+      // Save the JWT separately.
+      sessionStorage.setItem(
+        "accessToken",
+        data.accessToken
+      );
+
+      // Save only safe user details, never the password hash.
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({
+          userId: data.user.userId,
+          username: data.user.username,
+          email: data.user.email,
+        })
+      );
+
+      router.push(`/dashboard?userId=${data.user.userId}`);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main
+      style={{
+        maxWidth: 400,
+        margin: "80px auto",
+        padding: 24,
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h1>Chat Application Login</h1>
+
+      <form
+        onSubmit={handleLogin}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 14,
+        }}
+      >
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{ padding: 12 }}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{ padding: 12 }}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ padding: 12, cursor: "pointer" }}
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+        {error && (
+          <p style={{ color: "red" }}>{error}</p>
+        )}
+      </form>
+    </main>
+  );
+}

@@ -481,12 +481,15 @@ Handles:
 ### Endpoint
 
 ```http
-GET /api/friends
+GET /api/friends?Status=ACCEPTED
 ```
 
 ### Purpose
 
-Returns the current user's friends.
+Returns the current user's accepted friends. Use `Status=PENDING` to retrieve
+all pending relationships; this response does not distinguish sent from
+received requests, so use the direction-specific request endpoints below for
+those lists.
 
 ### Headers
 
@@ -499,16 +502,9 @@ Authorization: Bearer JWT_TOKEN
 ```json
 [
   {
+    "requestId": "friendship123",
     "id": "user456",
-    "username": "rahul",
-    "profileImage": "image-url",
-    "online": true
-  },
-  {
-    "id": "user789",
-    "username": "kiran",
-    "profileImage": "image-url",
-    "online": false
+    "username": "rahul"
   }
 ]
 ```
@@ -535,28 +531,20 @@ Used for the left sidebar:
 ### Endpoint
 
 ```http
-POST /api/friends/requests
-```
-
-### Request Body
-
-```json
-{
-  "receiverId": "user456"
-}
+POST /api/friends/requests/{friendId}
 ```
 
 ### Purpose
 
-Sends a friend request from the logged-in user to another user.
+Sends a friend request from the logged-in user to the user identified by the
+path parameter. The request has no body.
 
 ### Flow
 
 ```text
 Sai
  ↓
-POST /api/friends/requests
-receiverId = Rahul
+POST /api/friends/requests/user456
  ↓
 Backend
  ↓
@@ -585,15 +573,20 @@ Returns incoming pending friend requests.
 [
   {
     "requestId": "request123",
-    "sender": {
-      "id": "user789",
-      "username": "kiran",
-      "profileImage": "image-url"
-    },
-    "status": "PENDING"
+    "id": "user789",
+    "username": "kiran"
   }
 ]
 ```
+
+### Get Sent Requests
+
+```http
+GET /api/friends/requests/sent
+```
+
+Returns pending requests created by the authenticated user. The response uses
+the same `{ "requestId", "id", "username" }` shape as received requests.
 
 ---
 
@@ -622,10 +615,13 @@ Friend Request
       ↓
     ACCEPT
       ↓
-Friendship created
+Friendship marked ACCEPTED
       ↓
-Both users become friends
+One-to-one conversation created or returned
 ```
+
+The response is the created or existing conversation, with `id`, `type`, and
+`participants`.
 
 ---
 
@@ -643,23 +639,27 @@ Rejects a friend request.
 
 ---
 
-# 3.6 Remove Friend
+# 3.6 Delete Received Friend Request
+
+```http
+DELETE /api/friends/requests/{requestId}
+```
+
+Deletes a pending request. Only the request recipient can delete it.
+
+---
+
+# 3.7 Remove Friend
 
 ### Endpoint
 
 ```http
-DELETE /api/friends/{friendId}
-```
-
-### Example
-
-```http
-DELETE /api/friends/user456
+PUT /api/friends/requests/{friendId}/remove
 ```
 
 ### Purpose
 
-Removes an existing friendship.
+Removes an existing accepted friendship by the other user's ID.
 
 ---
 
@@ -667,12 +667,14 @@ Removes an existing friendship.
 
 | Method | Endpoint                                   | Purpose              |
 | ------ | ------------------------------------------ | -------------------- |
-| GET    | `/api/friends`                             | Get friends          |
-| POST   | `/api/friends/requests`                    | Send friend request  |
-| GET    | `/api/friends/requests`                    | Get pending requests |
-| PUT    | `/api/friends/requests/{requestId}/accept` | Accept request       |
-| PUT    | `/api/friends/requests/{requestId}/reject` | Reject request       |
-| DELETE | `/api/friends/{friendId}`                  | Remove friend        |
+| GET    | `/api/friends?Status=ACCEPTED`             | Get accepted friends          |
+| POST   | `/api/friends/requests/{friendId}`         | Send friend request           |
+| GET    | `/api/friends/requests`                    | Get received pending requests |
+| GET    | `/api/friends/requests/sent`               | Get sent pending requests     |
+| PUT    | `/api/friends/requests/{requestId}/accept` | Accept request and create chat |
+| PUT    | `/api/friends/requests/{requestId}/reject` | Reject request                |
+| DELETE | `/api/friends/requests/{requestId}`        | Delete received request       |
+| PUT    | `/api/friends/requests/{friendId}/remove`  | Remove accepted friend        |
 
 ---
 
@@ -745,46 +747,29 @@ Okay                  10:20
 ### Endpoint
 
 ```http
-POST /api/chats
-```
-
-### Request Body
-
-```json
-{
-  "userId": "user456"
-}
+POST /api/chats/{userId}
 ```
 
 ### Purpose
 
-Creates or retrieves the conversation between the logged-in user and another user.
+Creates or retrieves the one-to-one conversation between the logged-in user
+and the user identified by the path parameter. The request has no body.
 
 ### Example
 
 Sai wants to chat with Rahul:
 
 ```json
-{
-  "userId": "rahulUserId"
-}
+POST /api/chats/rahulUserId
 ```
 
 ### Response
 
 ```json
 {
-  "chatId": "chat123",
-  "participants": [
-    {
-      "id": "saiId",
-      "username": "sai"
-    },
-    {
-      "id": "rahulId",
-      "username": "rahul"
-    }
-  ]
+  "id": "chat123",
+  "type": "ONE_TO_ONE",
+  "participants": ["saiId", "rahulId"]
 }
 ```
 
@@ -828,6 +813,24 @@ Loads previous messages when the user opens a chat.
   }
 ]
 ```
+
+### Send a Stored Message
+
+```http
+POST /api/chats/{chatId}/messages
+Content-Type: application/json
+```
+
+```json
+{
+  "receiverId": "rahulId",
+  "content": "Hi Rahul"
+}
+```
+
+The authenticated sender must belong to the specified one-to-one conversation.
+The backend stores the message and returns the saved message record before the
+frontend relays it through Socket.IO.
 
 ---
 
@@ -875,10 +878,11 @@ PUT /api/chats/chat123/read
 
 | Method | Endpoint                       | Purpose                    |
 | ------ | ------------------------------ | -------------------------- |
-| GET    | `/api/chats`                   | Get user's conversations   |
-| POST   | `/api/chats`                   | Create/get one-to-one chat |
-| GET    | `/api/chats/{chatId}/messages` | Get chat history           |
-| PUT    | `/api/chats/{chatId}/read`     | Mark messages as read      |
+| GET    | `/api/chats`                       | Get user's conversations      |
+| POST   | `/api/chats/{userId}`             | Create/get one-to-one chat    |
+| GET    | `/api/chats/{chatId}/messages`    | Get chat history              |
+| POST   | `/api/chats/{chatId}/messages`    | Save a one-to-one chat message |
+| PUT    | `/api/chats/{chatId}/read`        | Mark messages as read         |
 
 ---
 
@@ -1222,20 +1226,23 @@ PUT    /api/users/me
 ## FriendController
 
 ```text
-GET    /api/friends
-POST   /api/friends/requests
+GET    /api/friends?Status={status}
+POST   /api/friends/requests/{friendId}
 GET    /api/friends/requests
+GET    /api/friends/requests/sent
 PUT    /api/friends/requests/{requestId}/accept
 PUT    /api/friends/requests/{requestId}/reject
-DELETE /api/friends/{friendId}
+DELETE /api/friends/requests/{requestId}
+PUT    /api/friends/requests/{friendId}/remove
 ```
 
 ## ChatController
 
 ```text
 GET    /api/chats
-POST   /api/chats
+POST   /api/chats/{userId}
 GET    /api/chats/{chatId}/messages
+POST   /api/chats/{chatId}/messages
 PUT    /api/chats/{chatId}/read
 ```
 

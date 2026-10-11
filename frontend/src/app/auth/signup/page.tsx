@@ -3,7 +3,7 @@ import Header from '../../header/header';
 export default function Signup(){
     return (
         <>
-        <Header show={false} />
+        <Header />
         <div className="full-page">
             <div className="left-section"></div>
             <div className="right-section">
