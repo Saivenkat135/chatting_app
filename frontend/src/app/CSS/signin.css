@@ -1,71 +1,306 @@
-.full-page{
+/* ==============================
+   Full Page Layout
+================================= */
+
+.full-page {
     display: flex;
-    height: 100vh;
-    
+    min-height: 100vh;
+    width: 100%;
+    background: #f3f6fc;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ==============================
+   Left and Right Sections
+================================= */
+
 .left-section,
-.right-section{
-    flex:1;
+.right-section {
+    flex: 1;
+    min-width: 0;
 }
-.right-section{
-    
-    background-color: white;
+
+.left-section {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 40px;
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5,
+        #7c3aed
+    );
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
 }
-.form{
-    color: black;
-    height: 450px;
-    border: 2px solid rgb(143, 143, 143);
-    padding: 25px 30px 55px 30px;
+
+.right-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    background: #f8fafc;
+}
+
+/* ==============================
+   Sign In Form Card
+================================= */
+
+.form {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 400px;
+    min-height: 420px;
+    padding: 40px 35px;
+    border: 1px solid #e2e8f0;
     border-radius: 20px;
+    background-color: #ffffff;
+    color: #0f172a;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: box-shadow 0.5s;
-}
-.form:hover{
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
+
+    transition:
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
 }
 
-.title{
+.form:hover {
+    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.13);
+    transform: translateY(-3px);
+}
+
+/* ==============================
+   Title
+================================= */
+
+.title {
     text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-decoration: underline;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #1e293b;
+    text-decoration: none;
+    letter-spacing: -0.5px;
 }
-.text{
-    font-size: 15px;
-    margin-left:-10px;
-    margin-top: 10px;
-    font-weight: bold;
-    display: inline-block;
-}
-.input{
-    border: 2px solid rgb(193, 193, 193);
-    border-radius: 15px;
-    width: 250px;
-    height: 46px;
-    margin-top: 10px;
-    padding-left: 10px;
-}
-.input::placeholder{
-    font-size: 12px;
-    
-}
-.submit-button{
+
+/* ==============================
+   Labels
+================================= */
+
+.text {
+    width: 100%;
+    font-size: 14px;
+    margin-top: 16px;
+    margin-left: 0;
+    font-weight: 600;
     display: block;
-    width: 250px;
-    height: 40px;
-    margin-top: 40px;
-    background-color: rgb(62, 118, 238);
-    border-radius: 10px;
-    transition: background-color 0.5s;
+    color: #334155;
 }
-.submit-button:hover{
-    background-color: rgb(24, 65, 154);
+
+/* ==============================
+   Input Fields
+================================= */
+
+.input {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin-top: 8px;
+    padding: 0 14px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background-color: #ffffff;
+    color: #0f172a;
+
+    font-size: 14px;
+    outline: none;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background-color 0.25s ease;
+}
+
+.input::placeholder {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.input:hover {
+    border-color: #94a3b8;
+}
+
+.input:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.13);
+}
+
+/* ==============================
+   Submit Button
+================================= */
+
+.submit-button {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    margin-top: 30px;
+    padding: 12px 16px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #3b82f6,
+        #4f46e5
+    );
+
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+
+    transition:
+        background 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.submit-button:hover {
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #4338ca
+    );
+
+    box-shadow: 0 7px 18px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+.submit-button:active {
+    transform: scale(0.98);
+}
+
+.submit-button:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.4);
+    outline-offset: 3px;
+}
+
+.submit-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* ==============================
+   Error Message
+================================= */
+
+.form [role="alert"] {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 14px;
+    padding: 10px 12px;
+
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background-color: #fef2f2;
+
+    color: #b91c1c;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* ==============================
+   Responsive Design
+================================= */
+
+@media (max-width: 768px) {
+    .full-page {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 24px 16px;
+        box-sizing: border-box;
+    }
+
+    .left-section {
+        flex: none;
+        width: 100%;
+        min-height: 120px;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 16px 16px 0 0;
+        font-size: 24px;
+    }
+
+    .right-section {
+        flex: none;
+        width: 100%;
+        padding: 25px 16px;
+        box-sizing: border-box;
+        border-radius: 0 0 16px 16px;
+    }
+
+    .form {
+        max-width: 420px;
+        min-height: auto;
+        padding: 30px 24px;
+    }
+
+    .title {
+        font-size: 25px;
+    }
+}
+
+@media (max-width: 400px) {
+    .full-page {
+        padding: 12px;
+    }
+
+    .right-section {
+        padding: 16px 10px;
+    }
+
+    .form {
+        padding: 26px 18px;
+        border-radius: 14px;
+    }
+
+    .title {
+        font-size: 23px;
+    }
+}
+
+/* ==============================
+   Reduced Motion Accessibility
+================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    .form:hover,
+    .submit-button:hover,
+    .submit-button:active {
+        transform: none;
+    }
 }
