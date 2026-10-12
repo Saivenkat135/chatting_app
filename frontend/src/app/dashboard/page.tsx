@@ -7,7 +7,7 @@ import { io, Socket } from "socket.io-client";
 import "./dashboard.css";
 
 const API_URL = "http://localhost:8000";
-const SOCKET_URL = "http://localhost:3000";
+const SOCKET_URL = "http://localhost:3001";
 
 type User = {
   userId: string;
@@ -583,56 +583,86 @@ export default function DashboardPage() {
   // Socket.IO connection
   // --------------------------------------------------
 
-  useEffect(() => {
-    if (!currentUserId || !token) return;
+  
+useEffect(() => {
+  if (!currentUserId || !token) return;
 
-    const socket = io(SOCKET_URL);
+  const socket = io(SOCKET_URL, {
+    transports: ["websocket", "polling"],
+    reconnection: true,
+  });
 
-    socketRef.current = socket;
+  socketRef.current = socket;
 
-    socket.on("connect", () => {
-      setConnected(true);
-      socket.emit("REGISTER", currentUserId);
-    });
+  socket.on("connect", () => {
+    console.log("Socket connected:", socket.id);
 
-    socket.on("disconnect", () => setConnected(false));
+    setConnected(true);
 
-    socket.on("connect_error", (err) => {
-      setConnected(false);
-      console.error("Socket connection failed:", err.message);
-    });
+    // Register this browser's logged-in user
+    socket.emit("REGISTER", currentUserId);
 
-    socket.on(
-      "RECEIVE_MESSAGE",
-      (payload: { senderId: string; message: string }) => {
-        if (payload.senderId === activePeerRef.current) {
-          void fetchChatHistory(activeConversationRef.current)
-            .then(setMessages)
-            .catch((err) => {
-              setError(
-                err instanceof Error
-                  ? err.message
-                  : "Unable to reload received messages."
-              );
-            });
-        }
+    console.log("REGISTER sent for user:", currentUserId);
+  });
 
-        void fetchConversations().catch((err) => {
-          console.error("Conversation refresh failed:", err);
-        });
+  socket.on("disconnect", (reason) => {
+    console.log("Socket disconnected:", reason);
+    setConnected(false);
+  });
+
+  socket.on("connect_error", (err) => {
+    console.error("Socket connection failed:", err.message);
+    setConnected(false);
+  });
+
+  socket.on(
+    "RECEIVE_MESSAGE",
+    (payload: {
+      senderId: string;
+      receiverId: string;
+      conversationId: string;
+      message: string;
+      timestamp?: string;
+    }) => {
+      console.log("RECEIVE_MESSAGE received:", payload);
+
+      // Update the open chat only if this message belongs to it
+      if (
+        payload.conversationId &&
+        payload.conversationId === activeConversationRef.current
+      ) {
+        void fetchChatHistory(payload.conversationId)
+          .then((history) => {
+            setMessages(history);
+          })
+          .catch((err) => {
+            console.error("Failed to reload received messages:", err);
+          });
       }
-    );
 
-    socket.on("DELIVERY_ERROR", (message: string) => {
-      setError(message);
-    });
+      // Update the conversation list and latest-message preview
+      void fetchConversations().catch((err) => {
+        console.error("Failed to refresh conversations:", err);
+      });
+    }
+  );
 
-    return () => {
-      socket.removeAllListeners();
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, [currentUserId, token, fetchConversations, fetchChatHistory]);
+  socket.on("DELIVERY_ERROR", (message: string) => {
+    console.error("Message delivery error:", message);
+    setError(message);
+  });
+
+  return () => {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socketRef.current = null;
+  };
+}, [
+  currentUserId,
+  token,
+  fetchChatHistory,
+  fetchConversations,
+]);
 
   // --------------------------------------------------
   // Load history whenever the selected conversation changes
