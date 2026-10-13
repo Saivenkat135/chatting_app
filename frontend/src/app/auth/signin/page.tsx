@@ -4,6 +4,7 @@
 import "../../CSS/signin.css";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Header from "../../header/header";
 
 export default function Signin() {
   const router = useRouter();
@@ -98,12 +99,13 @@ router.push(
 
   return (
     <>
+    <Header />
       <div className="full-page">
-        <div className="left-section">
+        <div className="sign-left-section">
           image
         </div>
 
-        <div className="right-section">
+        <div className="sign-right-section">
           <div className="form">
             <div className="title">Sign In</div>
 

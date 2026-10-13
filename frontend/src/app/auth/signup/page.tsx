@@ -5,8 +5,8 @@ export default function Signup(){
         <>
         <Header />
         <div className="full-page">
-            <div className="left-section"></div>
-            <div className="right-section">
+            <div className="sign-left-section"></div>
+            <div className="sign-right-section">
                 <div className="form">
                     <div className="title">Sign Up</div>
                         <div className="text">Enter the Name</div>
