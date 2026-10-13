@@ -1,306 +1,272 @@
-/* ==============================
-   Full Page Layout
-================================= */
-
-.full-page {
+/* .full-page{
     display: flex;
-    min-height: 100vh;
-    width: 100%;
-    background: #f3f6fc;
-    font-family: Arial, Helvetica, sans-serif;
+    height: 100vh;
+    
 }
 
-/* ==============================
-   Left and Right Sections
-================================= */
-
-.left-section,
-.right-section {
-    flex: 1;
-    min-width: 0;
+.signin-left-section,
+.signin-right-section{
+    flex:1;
 }
-
-.left-section {
+.signin-right-section{
+    
+    background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px;
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #4f46e5,
-        #7c3aed
-    );
-    color: white;
-    font-size: 32px;
-    font-weight: bold;
 }
-
-.right-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    background: #f8fafc;
-}
-
-/* ==============================
-   Sign In Form Card
-================================= */
-
-.form {
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 400px;
-    min-height: 420px;
-    padding: 40px 35px;
-    border: 1px solid #e2e8f0;
+.form{
+    color: black;
+    height: 450px;
+    border: 2px solid rgb(143, 143, 143);
+    padding: 25px 30px 55px 30px;
     border-radius: 20px;
-    background-color: #ffffff;
-    color: #0f172a;
-
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.08);
-
-    transition:
-        box-shadow 0.3s ease,
-        transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: box-shadow 0.5s;
+}
+.form:hover{
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
 }
 
-.form:hover {
-    box-shadow: 0 16px 45px rgba(15, 23, 42, 0.13);
-    transform: translateY(-3px);
+.title{
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-decoration: underline;
+}
+.text{
+    font-size: 15px;
+    margin-left:-10px;
+    margin-top: 10px;
+    font-weight: bold;
+    display: inline-block;
+}
+.input{
+    border: 2px solid rgb(193, 193, 193);
+    border-radius: 15px;
+    width: 250px;
+    height: 46px;
+    margin-top: 10px;
+    padding-left: 10px;
+}
+.input::placeholder{
+    font-size: 12px;
+    
+}
+.submit-button{
+    display: block;
+    width: 250px;
+    height: 40px;
+    margin-top: 40px;
+    background-color: rgb(62, 118, 238);
+    border-radius: 10px;
+    transition: background-color 0.5s;
+}
+.submit-button:hover{
+    background-color: rgb(24, 65, 154);
+} */
+
+
+/* ========================================
+   COMMON PAGE LAYOUT
+======================================== */
+
+.full-page {
+    display: flex;
+    min-height: calc(100vh - 70px); 
+     width: 100%;
+     height: 100vh;
+    background-color: #f4f7fb; 
 }
 
-/* ==============================
-   Title
-================================= */
+/* ========================================
+   LEFT SECTION
+======================================== */
+
+
+.sign-left-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background: linear-gradient(135deg, #1e3a8a, #2563eb); */
+    background:black;
+    color: white;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ========================================
+   RIGHT SECTION
+======================================== */
+
+.sign-right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px;
+    background-color: #f4f7fb;
+    color: white;
+}
+
+/* ========================================
+   FORM CONTAINER
+======================================== */
+
+.form {
+    width: 100%;
+    max-width: 420px;
+    padding: 36px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ========================================
+   FORM TITLE
+======================================== */
 
 .title {
-    text-align: center;
-    font-size: 28px;
+    margin-bottom: 30px;
+    color: #111827;
+    font-size: 30px;
     font-weight: 700;
-    margin-bottom: 25px;
-    color: #1e293b;
-    text-decoration: none;
-    letter-spacing: -0.5px;
+    text-align: center;
 }
 
-/* ==============================
-   Labels
-================================= */
+/* ========================================
+   LABEL TEXT
+======================================== */
 
 .text {
-    width: 100%;
+    margin-bottom: 9px;
+    color: #374151;
     font-size: 14px;
-    margin-top: 16px;
-    margin-left: 0;
     font-weight: 600;
-    display: block;
-    color: #334155;
 }
 
-/* ==============================
-   Input Fields
-================================= */
+/* ========================================
+   INPUT FIELDS
+======================================== */
 
 .input {
-    box-sizing: border-box;
     display: block;
     width: 100%;
-    height: 48px;
-    margin-top: 8px;
+    height: 46px;
+    margin-bottom: 22px;
     padding: 0 14px;
-
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
     background-color: #ffffff;
-    color: #0f172a;
-
+    color: #111827;
     font-size: 14px;
     outline: none;
-
-    transition:
-        border-color 0.25s ease,
-        box-shadow 0.25s ease,
-        background-color 0.25s ease;
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
 }
 
 .input::placeholder {
-    font-size: 13px;
-    color: #94a3b8;
-}
-
-.input:hover {
-    border-color: #94a3b8;
+    color: #9ca3af;
 }
 
 .input:focus {
-    border-color: #3b82f6;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.13);
+    border-color: black;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-/* ==============================
-   Submit Button
-================================= */
+/* ========================================
+   SUBMIT BUTTON
+======================================== */
 
 .submit-button {
     display: block;
     width: 100%;
     min-height: 46px;
-    margin-top: 30px;
+    margin-top: 8px;
     padding: 12px 16px;
-
     border: none;
-    border-radius: 10px;
-
-    background: linear-gradient(
-        135deg,
-        #3b82f6,
-        #4f46e5
-    );
-
+    border-radius: 8px;
+    /* background-color: #2563eb; */
+    background-color: black;
     color: #ffffff;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-
-    transition:
-        background 0.3s ease,
-        box-shadow 0.3s ease,
-        transform 0.2s ease,
-        opacity 0.2s ease;
+    transition: background-color 0.2s ease,
+                transform 0.2s ease;
 }
 
-.submit-button:hover {
-    background: linear-gradient(
-        135deg,
-        #2563eb,
-        #4338ca
-    );
-
-    box-shadow: 0 7px 18px rgba(59, 130, 246, 0.3);
+.submit-button:hover:not(:disabled) {
+    background-color: black;
     transform: translateY(-1px);
 }
 
-.submit-button:active {
-    transform: scale(0.98);
-}
-
-.submit-button:focus-visible {
-    outline: 3px solid rgba(59, 130, 246, 0.4);
-    outline-offset: 3px;
+.submit-button:active:not(:disabled) {
+    transform: translateY(0);
 }
 
 .submit-button:disabled {
-    opacity: 0.65;
+    background-color: #93b4f8;
     cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
 }
 
-/* ==============================
-   Error Message
-================================= */
+/* ========================================
+   ERROR MESSAGE
+======================================== */
 
-.form [role="alert"] {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 14px;
+[role="alert"] {
+    margin: -8px 0 16px;
     padding: 10px 12px;
-
     border: 1px solid #fecaca;
-    border-radius: 8px;
+    border-radius: 6px;
     background-color: #fef2f2;
-
     color: #b91c1c;
     font-size: 13px;
     line-height: 1.5;
     overflow-wrap: anywhere;
 }
 
-/* ==============================
-   Responsive Design
-================================= */
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
 
 @media (max-width: 768px) {
     .full-page {
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        min-height: calc(100vh - 70px);
+    }
+
+    .sign-left-section {
+        display: none;
+    }
+
+    .signin-right-section {
+        flex: 1;
+        padding: 28px 18px;
+    }
+
+    .form {
+        max-width: 460px;
+        padding: 28px 22px;
+    }
+
+    .title {
+        font-size: 26px;
+        margin-bottom: 24px;
+    }
+}
+
+@media (max-width: 380px) {
+    .form {
         padding: 24px 16px;
-        box-sizing: border-box;
     }
 
-    .left-section {
-        flex: none;
-        width: 100%;
-        min-height: 120px;
-        padding: 20px;
-        box-sizing: border-box;
-        border-radius: 16px 16px 0 0;
+    .title {
         font-size: 24px;
-    }
-
-    .right-section {
-        flex: none;
-        width: 100%;
-        padding: 25px 16px;
-        box-sizing: border-box;
-        border-radius: 0 0 16px 16px;
-    }
-
-    .form {
-        max-width: 420px;
-        min-height: auto;
-        padding: 30px 24px;
-    }
-
-    .title {
-        font-size: 25px;
-    }
-}
-
-@media (max-width: 400px) {
-    .full-page {
-        padding: 12px;
-    }
-
-    .right-section {
-        padding: 16px 10px;
-    }
-
-    .form {
-        padding: 26px 18px;
-        border-radius: 14px;
-    }
-
-    .title {
-        font-size: 23px;
-    }
-}
-
-/* ==============================
-   Reduced Motion Accessibility
-================================= */
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        transition: none !important;
-        scroll-behavior: auto !important;
-    }
-
-    .form:hover,
-    .submit-button:hover,
-    .submit-button:active {
-        transform: none;
     }
 }

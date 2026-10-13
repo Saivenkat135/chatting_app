@@ -5,9 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import "./dashboard.css";
+import Header from "../header/header";
 
 const API_URL = "http://localhost:8000";
-const SOCKET_URL = "http://localhost:3001";
+const SOCKET_URL = "http://localhost:3000";
 
 type User = {
   userId: string;
@@ -175,6 +176,7 @@ export default function DashboardPage() {
 
   const [search, setSearch] = useState("");
   const [friendId, setFriendId] = useState("");
+  const [friendUsername, setFriendUsername] = useState("");
   const [messageText, setMessageText] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -441,20 +443,37 @@ export default function DashboardPage() {
   // Send a friend request.
   // --------------------------------------------------
 
-  const postFriendRequest = useCallback(
-    async (id: string): Promise<unknown> => {
-      const endpoint =
-        `/api/friends/requests/${encodeURIComponent(id)}`;
+  // const postFriendRequest = useCallback(
+  //   async (id: string): Promise<unknown> => {
+  //     const endpoint =
+  //       `/api/friends/requests/${encodeURIComponent(id)}`;
 
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-      });
+  //     const response = await fetch(`${API_URL}${endpoint}`, {
+  //       method: "POST",
+  //       headers: getAuthHeaders(),
+  //     });
 
-      return readResponse(response, endpoint);
-    },
-    [getAuthHeaders, readResponse]
-  );
+  //     return readResponse(response, endpoint);
+  //   },
+  //   [getAuthHeaders, readResponse]
+  // );
+
+  
+const postFriendRequest = useCallback(
+  async (userId: string): Promise<unknown> => {
+    const endpoint =
+      `/api/friends/requests/${encodeURIComponent(userId)}`;
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+
+    return readResponse(response, endpoint);
+  },
+  [getAuthHeaders, readResponse]
+);
+
 
   // --------------------------------------------------
   // 7. PUT /api/friends/requests/{requestId}/accept
@@ -709,36 +728,104 @@ useEffect(() => {
   // UI actions
   // --------------------------------------------------
 
-  async function sendFriendRequest() {
-    const id = friendId.trim();
+  async function fetchFriendId(username: string): Promise<string> {
+      const endpoint =
+        `/api/friends/getFriendId/${encodeURIComponent(username)}`;
 
-    if (!id) {
-      setError("Enter the user ID of the person you want to add.");
-      return;
+      const response = await fetch(`${API_URL}${endpoint}`, {
+        method: "GET",
+        headers: getAuthHeaders(),
+        cache: "no-store",
+      });
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        throw new Error(
+          `Could not fetch user ID: ${response.status} ${responseText}`
+        );
+      }
+
+      let data: unknown;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        // Support an endpoint that returns the ID as plain text.
+        data = responseText;
+      }
+
+      let resolvedId = "";
+
+      if (typeof data === "string") {
+        resolvedId = data.trim();
+      } else if (data && typeof data === "object") {
+        const result = data as {
+          userId?: string;
+          friendId?: string;
+          id?: string;
+        };
+
+        resolvedId = String(
+          result.userId || result.friendId || result.id || ""
+        ).trim();
+      }
+
+      if (!resolvedId) {
+        throw new Error("The username lookup returned no user ID.");
+      }
+
+      if (resolvedId === currentUserId) {
+        throw new Error("You cannot send a friend request to yourself.");
+      }
+
+      setFriendId(resolvedId);
+      console.log("Resolved username to user ID:", resolvedId);
+
+      return resolvedId;
     }
 
-    setBusyId(id);
-    setError("");
-    setNotice("");
+  
+async function sendFriendRequest() {
+  const username = friendUsername.trim();
 
-    try {
-      await postFriendRequest(id);
-
-      setFriendId("");
-      setNotice("Friend request sent successfully");
-
-      await Promise.all([
-        fetchAllRequests(),
-        fetchPendingFriendships(),
-      ]);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Could not send friend request."
-      );
-    } finally {
-      setBusyId("");
-    }
+  // Validate before making any API request.
+  if (!username) {
+    setError("Enter the username of the person you want to add.");
+    return;
   }
+
+  setBusyId(username);
+  setError("");
+  setNotice("");
+
+  try {
+    // Step 1: Resolve username to user ID.
+    const resolvedUserId = await fetchFriendId(username);
+
+    // Step 2: Send the request using the resolved user ID.
+    await postFriendRequest(resolvedUserId);
+
+    // Step 3: Clear the input and refresh the request lists.
+    setFriendUsername("");
+    setFriendId("");
+    setNotice("Friend request sent successfully.");
+
+    await Promise.all([
+      fetchAllRequests(),
+      fetchPendingFriendships(),
+    ]);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Could not send friend request."
+    );
+  } finally {
+    setBusyId("");
+  }
+}
+
 
   async function respondToRequest(
     request: FriendRequest,
@@ -982,6 +1069,8 @@ useEffect(() => {
   // --------------------------------------------------
 
   return (
+    <>
+    <Header showDashboard={true} />
     <main className="dashboard">
       <aside className="sidebar">
         <div className="brand">
@@ -1091,13 +1180,13 @@ useEffect(() => {
             }}
           >
             <input
-              value={friendId}
-              onChange={(event) => setFriendId(event.target.value)}
-              placeholder="Enter a user ID to add..."
-              aria-label="Friend user ID"
+              value={friendUsername}
+              onChange={(event) => setFriendUsername(event.target.value)}
+              placeholder="Enter a user Name to add..."
+              aria-label="Friend user Name"
             />
-            <button type="submit" disabled={!friendId.trim() || !!busyId}>
-              {busyId === friendId.trim() ? "Adding..." : "Add"}
+            <button type="submit" disabled={!friendUsername.trim() || !!busyId}>
+              {busyId === friendUsername.trim() ? "Adding..." : "Add"}
             </button>
           </form>
         )}
@@ -1458,5 +1547,6 @@ useEffect(() => {
         )}
       </section>
     </main>
+    </>
   );
 }

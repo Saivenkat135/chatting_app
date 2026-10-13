@@ -7,6 +7,7 @@ import com.chat.app.entity.Conversations;
 import com.chat.app.services.interfaces.ChatService;
 import com.chat.app.services.interfaces.FriendShipService;
 
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -47,6 +48,17 @@ public class FriendShipController {
         );
 
         friendShipService.sendFriendRequest(user.getUserId(),friendId);
+    }
+
+    @PostMapping("/requests/username/{username}")
+    public void sendFriendRequestByUsername(Authentication authentication,@PathVariable String username){
+        String email=authentication.getName();
+
+        UserDetails user=userRepository.findByUsername(username).orElseThrow(
+                ()->new RuntimeException("username not found")
+        );
+
+        friendShipService.sendFriendRequest(user.getUsername(),user.getUserId());
     }
 
     @GetMapping("/requests")
@@ -121,6 +133,16 @@ public class FriendShipController {
         friendShipService.removeFriend(user.getUserId(), friendId);
     }
 
+    @GetMapping("/getFriendId/{username}")
+    public ResponseEntity<String> getFriendId(
+            @PathVariable String username) {
 
+        UserDetails user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        return ResponseEntity.ok(user.getUserId());
+    }
 
 }
