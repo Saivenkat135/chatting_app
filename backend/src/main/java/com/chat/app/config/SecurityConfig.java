@@ -83,7 +83,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(
                 List.of(
                         "http://localhost:3000",
-                        "http://localhost:3001"
+                        "http://localhost:3001",
+                        "https://my-chat-app-tan-three.vercel.app"
                 )
         );
 
