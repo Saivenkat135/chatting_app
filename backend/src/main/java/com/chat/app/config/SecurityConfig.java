@@ -50,7 +50,8 @@ public class SecurityConfig {
                         // Public authentication endpoints
                         .requestMatchers(
                                 "/api/user/login",
-                                "/api/user/register"
+                                "/api/user/register",
+                                "/api/auth/google"
                         ).permitAll()
 
                         // Allow CORS preflight requests

@@ -8,7 +8,7 @@ import "./dashboard.css";
 import Header from "../header/header";
 
 const API_URL = "http://localhost:8000";
-const SOCKET_URL = "http://localhost:3000";
+const SOCKET_URL = "http://localhost:3001";
 
 type User = {
   userId: string;

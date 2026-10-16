@@ -21,6 +21,8 @@ public class UserDetails {
     @Field(targetType = FieldType.OBJECT_ID)
     private String userId;
 
+    private String googleId;
+
     private String username;
 
     private String email;
