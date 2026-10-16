@@ -84,7 +84,7 @@ public class SecurityConfig {
                 List.of(
                         "http://localhost:3000",
                         "http://localhost:3001",
-                        "https://my-chat-app-tan-three.vercel.app"
+                        "https://my-chatt-app.vercel.app"
                 )
         );
 
