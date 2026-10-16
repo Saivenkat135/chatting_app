@@ -7,8 +7,8 @@ import { io, Socket } from "socket.io-client";
 import "./dashboard.css";
 import Header from "../header/header";
 
-const API_URL = "http://localhost:8000";
-const SOCKET_URL = "http://localhost:3001";
+const API_URL = "https://my-chat-app-spring-backend.onrender.com";
+const SOCKET_URL = "https://my-chat-app-websockets-backend.onrender.com";
 
 type User = {
   userId: string;
